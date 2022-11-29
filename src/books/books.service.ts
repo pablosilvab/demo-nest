@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
 import { Model } from 'mongoose';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
@@ -15,19 +16,23 @@ export class BooksService {
     return this.bookModel.create(createBookDto);
   }
 
-  async findAll() {
-    return `This action returns all books`;
+  async findAll(request: Request) {
+    return this.bookModel
+      .find(request.query)
+      .setOptions({ sanitizeFilter: true });
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} book`;
+  async findOne(id: string) {
+    return this.bookModel.findOne({ _id: id });
   }
 
-  async update(id: number, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
+  async update(id: string, updateBookDto: UpdateBookDto) {
+    return this.bookModel.findOneAndUpdate({ _id: id }, updateBookDto, {
+      new: true,
+    });
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} book`;
+  async remove(id: string) {
+    return this.bookModel.findByIdAndRemove({ _id: id });
   }
 }
